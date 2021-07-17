@@ -94,7 +94,31 @@ export const addNewItem = (event, arr, items, container) => {
 };
 // CLEAR ALL
 export const clearAll = (container) => {
-  const newArr = [];
+  let newArr = JSON.parse(localStorage.getItem('myToDos'));
+  newArr = newArr.filter((item) => item.completed === false);
+  const newSorteredArr = [];
+  newArr.forEach((item, i) => {
+    const { description, completed } = item;
+    const index = i + 1;
+    newSorteredArr.push({ description, completed, index });
+  });
   container.innerHTML = '';
-  localStorage.setItem('myToDos', JSON.stringify(newArr));
+  localStorage.setItem('myToDos', JSON.stringify(newSorteredArr));
+  setToDoArr(newSorteredArr);
+  implementToDoItems(newSorteredArr);
+  const toDoDescriptionsInputs = [...document.querySelectorAll('.list-item .description-input')];
+  toDoDescriptionsInputs.forEach((item) => item.addEventListener('focusin', (event) => descriptionOnFocus(event, item)));
+  toDoDescriptionsInputs.forEach((item) => item.addEventListener('focusout', (event) => descriptionOnFocus(event, item)));
+  toDoDescriptionsInputs.forEach((item) => item.addEventListener('input', () => updateInput(item)));
+  const arr = [...document.querySelectorAll('.list-item')];
+  arr.forEach((item) => {
+    item.addEventListener('mouseover', (event) => onMouseOver(event, item));
+    item.addEventListener('mouseout', (event) => onMouseOut(event, item));
+    item.addEventListener('dragstart', (event) => onDragStart(event, item));
+    item.addEventListener('drop', (event) => onDragEnd(event, item, arr, listWrap));
+  });
+  const removeBtns = document.querySelectorAll('.remove-item');
+  removeBtns.forEach((item) => item.addEventListener('click', () => removeItem(item, arr, container)));
+  const toDoChecksInputs = [...document.querySelectorAll('.list-item .check-item')];
+  toDoChecksInputs.forEach((item) => item.addEventListener('change', () => checkItem(item)));
 };
